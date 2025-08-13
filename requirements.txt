@@ -1,0 +1,16 @@
+crewai
+langchain
+langchain-community
+langchain-openai
+openai
+streamlit
+requests
+beautifulsoup4
+playwright
+pandas
+numpy
+python-dotenv
+pydantic
+pytest
+google-search-results
+anthropic
