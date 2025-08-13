@@ -216,27 +216,42 @@ def display_results(result):
             intelligence = result.get("market_intelligence", {})
             if isinstance(intelligence, dict):
                 st.markdown('<div class="subsection-header">Competitor Analysis</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("competitor_analysis", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                competitor_content = intelligence.get("competitor_analysis", "No data available")
+                st.markdown(competitor_content)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 st.markdown('<div class="subsection-header">Customer Insights</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("customer_insights", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                customer_content = intelligence.get("customer_insights", "No data available")
+                st.markdown(customer_content)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
                 st.markdown('<div class="subsection-header">Market Trends</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("market_trends", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                trends_content = intelligence.get("market_trends", "No data available")
+                st.markdown(trends_content)
+                st.markdown('</div>', unsafe_allow_html=True)
             else:
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{str(intelligence)}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                st.markdown(str(intelligence))
+                st.markdown('</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
         
         with tab2:
             st.markdown('<div class="tab-content">', unsafe_allow_html=True)
             positioning = result.get("positioning_strategy", "No data available")
-            st.markdown(f'<div class="content-section"><div class="analysis-content">{positioning}</div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="content-section">', unsafe_allow_html=True)
+            st.markdown(positioning)
+            st.markdown('</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
         
         with tab3:
             st.markdown('<div class="tab-content">', unsafe_allow_html=True)
             actions = result.get("strategic_actions", "No data available")
-            st.markdown(f'<div class="content-section"><div class="analysis-content">{actions}</div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="content-section">', unsafe_allow_html=True)
+            st.markdown(actions)
+            st.markdown('</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
     
     else:
@@ -248,20 +263,28 @@ def display_results(result):
             
             with tab1:
                 st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("competitor_analysis", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                st.markdown(intelligence.get("competitor_analysis", "No data available"))
+                st.markdown('</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
             with tab2:
                 st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("customer_insights", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                st.markdown(intelligence.get("customer_insights", "No data available"))
+                st.markdown('</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
                 
             with tab3:
                 st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("market_trends", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('<div class="content-section">', unsafe_allow_html=True)
+                st.markdown(intelligence.get("market_trends", "No data available"))
+                st.markdown('</div>', unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="content-section"><div class="analysis-content">{str(intelligence)}</div></div>', unsafe_allow_html=True)
+            st.markdown('<div class="content-section">', unsafe_allow_html=True)
+            st.markdown(str(intelligence))
+            st.markdown('</div>', unsafe_allow_html=True)
     
     # Raw result for debugging (expandable)
     with st.expander("Full Analysis Result (Technical)"):
