@@ -3,7 +3,7 @@ import time
 from typing import Dict, List, Any
 from crewai.tools import BaseTool
 from serpapi import GoogleSearch
-from config import Config
+from brand_positioning.config import Config
 import logging
 
 logger = logging.getLogger(__name__)

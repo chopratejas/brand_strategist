@@ -55,8 +55,8 @@ class Config:
     
     @classmethod
     def validate(cls):
-        required_keys = ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "SERP_API_KEY"]
+        required_keys = ["OPENAI_API_KEY", "SERP_API_KEY"]
         missing = [key for key in required_keys if not getattr(cls, key)]
         if missing:
-            raise ValueError(f"Missing required environment variables: {missing}")
+            raise ValueError(f"Missing API keys: {', '.join(missing)}")
         return True

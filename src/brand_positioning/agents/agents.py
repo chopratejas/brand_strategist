@@ -1,7 +1,7 @@
 from crewai import Agent
 from langchain_openai import ChatOpenAI
-from tools import CompetitorResearchTool, CustomerInsightTool, MarketTrendTool
-from config import Config
+from brand_positioning.tools.tools import CompetitorResearchTool, CustomerInsightTool, MarketTrendTool
+from brand_positioning.config import Config
 
 # Initialize LLM
 llm = ChatOpenAI(

@@ -1,0 +1,1 @@
+# Test suite for Brand Positioning Intelligence Platform

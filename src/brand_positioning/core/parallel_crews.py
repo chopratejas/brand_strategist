@@ -2,13 +2,13 @@ import asyncio
 import concurrent.futures
 import logging
 from crewai import Crew, Process
-from agents import create_market_intelligence_agent
-from parallel_tasks import (
+from brand_positioning.agents.agents import create_market_intelligence_agent
+from brand_positioning.core.parallel_tasks import (
     create_competitor_analysis_task,
     create_customer_insights_task, 
     create_market_trends_task
 )
-from tasks import create_positioning_strategy_task, create_strategic_action_task
+from brand_positioning.core.tasks import create_positioning_strategy_task, create_strategic_action_task
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class ParallelCrewsOrchestrator:
                 status_callback("Generating positioning strategy...", 85)
             
             # Step 2: Generate positioning strategy (sequential, depends on intelligence)
-            from agents import create_positioning_strategist_agent
+            from brand_positioning.agents.agents import create_positioning_strategist_agent
             positioning_agent = create_positioning_strategist_agent()
             
             # Create positioning task with intelligence data embedded in description
@@ -140,7 +140,7 @@ class ParallelCrewsOrchestrator:
                 status_callback("Generating strategic actions...", 90)
             
             # Step 3: Generate strategic actions (sequential, depends on positioning)
-            from agents import create_strategic_advisor_agent
+            from brand_positioning.agents.agents import create_strategic_advisor_agent
             advisor_agent = create_strategic_advisor_agent()
             
             # Create action task with positioning results embedded in description

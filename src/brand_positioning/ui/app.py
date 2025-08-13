@@ -2,7 +2,7 @@ import streamlit as st
 import logging
 import time
 import json
-from parallel_crews import run_parallel_analysis_sync, run_parallel_intelligence_sync
+from brand_positioning.core.parallel_crews import run_parallel_analysis_sync, run_parallel_intelligence_sync
 
 # Configure logging
 logging.basicConfig(level=logging.WARNING)  # Reduce noise in UI
@@ -17,15 +17,95 @@ st.set_page_config(
 # Custom CSS
 st.markdown("""
 <style>
-    .big-font {
-        font-size: 24px !important;
-        font-weight: bold;
+    .main-header {
+        font-size: 32px !important;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
     }
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 0.5rem;
+    .subtitle {
+        font-size: 18px;
+        color: #6b7280;
+        margin-bottom: 2rem;
+    }
+    .section-header {
+        font-size: 24px !important;
+        font-weight: 600;
+        color: #374151;
+        margin: 2rem 0 1rem 0;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+    }
+    .subsection-header {
+        font-size: 20px !important;
+        font-weight: 500;
+        color: #4b5563;
+        margin: 1.5rem 0 0.75rem 0;
+    }
+    .brand-summary {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        border-left: 4px solid #3b82f6;
+    }
+    .brand-item {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1f2937;
         margin: 0.5rem 0;
+    }
+    .content-section {
+        background: #fafbfc;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        border: 1px solid #e5e7eb;
+    }
+    .analysis-content {
+        font-size: 15px;
+        line-height: 1.7;
+        color: #374151;
+    }
+    .analysis-content h1, .analysis-content h2, .analysis-content h3 {
+        color: #1f2937 !important;
+        font-weight: 600 !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    .analysis-content h1 {
+        font-size: 22px !important;
+    }
+    .analysis-content h2 {
+        font-size: 20px !important;
+    }
+    .analysis-content h3 {
+        font-size: 18px !important;
+    }
+    .analysis-content p {
+        margin-bottom: 1rem;
+    }
+    .analysis-content ul, .analysis-content ol {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+    .analysis-content li {
+        margin: 0.5rem 0;
+    }
+    .status-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #059669;
+    }
+    .tab-content {
+        padding: 1rem 0;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 1rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-weight: 500;
+        font-size: 16px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -47,7 +127,7 @@ def run_full_analysis_with_status(brand_info):
     def update_status(message, progress=None):
         """Update status in real-time"""
         with status_placeholder:
-            st.markdown(f"**Status:** {message}")
+            st.markdown(f'<div class="status-text">Status: {message}</div>', unsafe_allow_html=True)
         if progress is not None:
             progress_bar.progress(progress / 100)
     
@@ -81,7 +161,7 @@ def run_quick_analysis_with_status(brand_info):
     def update_status(message, progress=None):
         """Update status in real-time"""
         with status_placeholder:
-            st.markdown(f"**Status:** {message}")
+            st.markdown(f'<div class="status-text">Status: {message}</div>', unsafe_allow_html=True)
         if progress is not None:
             progress_bar.progress(progress / 100)
     
@@ -113,18 +193,16 @@ def display_results(result):
         return
     
     # Brand Info Summary
-    st.markdown("### Analysis Summary")
+    st.markdown('<div class="section-header">Analysis Summary</div>', unsafe_allow_html=True)
     brand_info = result.get("brand_info", {})
     
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(f"**Brand:** {brand_info.get('brand', 'N/A')}")
-    with col2:
-        st.markdown(f"**Product:** {brand_info.get('product', 'N/A')}")
-    with col3:
-        st.markdown(f"**Target:** {brand_info.get('target', 'N/A')}")
-    
-    st.markdown("---")
+    st.markdown(f'''
+    <div class="brand-summary">
+        <div class="brand-item"><strong>Brand:</strong> {brand_info.get('brand', 'N/A')}</div>
+        <div class="brand-item"><strong>Product:</strong> {brand_info.get('product', 'N/A')}</div>
+        <div class="brand-item"><strong>Target Audience:</strong> {brand_info.get('target', 'N/A')}</div>
+    </div>
+    ''', unsafe_allow_html=True)
     
     # Check if this is full analysis or quick analysis
     is_full_analysis = "positioning_strategy" in result and "strategic_actions" in result
@@ -134,45 +212,56 @@ def display_results(result):
         tab1, tab2, tab3 = st.tabs(["Market Intelligence", "Positioning Strategy", "Strategic Actions"])
         
         with tab1:
-            st.markdown("### Market Intelligence Report")
+            st.markdown('<div class="tab-content">', unsafe_allow_html=True)
             intelligence = result.get("market_intelligence", {})
             if isinstance(intelligence, dict):
-                st.markdown("#### Competitor Analysis")
-                st.markdown(intelligence.get("competitor_analysis", "No data available"))
-                st.markdown("#### Customer Insights") 
-                st.markdown(intelligence.get("customer_insights", "No data available"))
-                st.markdown("#### Market Trends")
-                st.markdown(intelligence.get("market_trends", "No data available"))
+                st.markdown('<div class="subsection-header">Competitor Analysis</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("competitor_analysis", "No data available")}</div></div>', unsafe_allow_html=True)
+                
+                st.markdown('<div class="subsection-header">Customer Insights</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("customer_insights", "No data available")}</div></div>', unsafe_allow_html=True)
+                
+                st.markdown('<div class="subsection-header">Market Trends</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("market_trends", "No data available")}</div></div>', unsafe_allow_html=True)
             else:
-                st.markdown(str(intelligence))
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{str(intelligence)}</div></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
         
         with tab2:
-            st.markdown("### Positioning Strategy")
+            st.markdown('<div class="tab-content">', unsafe_allow_html=True)
             positioning = result.get("positioning_strategy", "No data available")
-            st.markdown(positioning)
+            st.markdown(f'<div class="content-section"><div class="analysis-content">{positioning}</div></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
         
         with tab3:
-            st.markdown("### Strategic Actions")
+            st.markdown('<div class="tab-content">', unsafe_allow_html=True)
             actions = result.get("strategic_actions", "No data available")
-            st.markdown(actions)
+            st.markdown(f'<div class="content-section"><div class="analysis-content">{actions}</div></div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
     
     else:
         # Quick analysis - just show intelligence
-        st.markdown("### Market Intelligence Results")
+        st.markdown('<div class="section-header">Market Intelligence Results</div>', unsafe_allow_html=True)
         intelligence = result.get("intelligence", {})
         if isinstance(intelligence, dict):
             tab1, tab2, tab3 = st.tabs(["Competitor Analysis", "Customer Insights", "Market Trends"])
             
             with tab1:
-                st.markdown(intelligence.get("competitor_analysis", "No data available"))
+                st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("competitor_analysis", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
             
             with tab2:
-                st.markdown(intelligence.get("customer_insights", "No data available"))
+                st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("customer_insights", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
             with tab3:
-                st.markdown(intelligence.get("market_trends", "No data available"))
+                st.markdown('<div class="tab-content">', unsafe_allow_html=True)
+                st.markdown(f'<div class="content-section"><div class="analysis-content">{intelligence.get("market_trends", "No data available")}</div></div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
         else:
-            st.markdown(str(intelligence))
+            st.markdown(f'<div class="content-section"><div class="analysis-content">{str(intelligence)}</div></div>', unsafe_allow_html=True)
     
     # Raw result for debugging (expandable)
     with st.expander("Full Analysis Result (Technical)"):
@@ -184,13 +273,13 @@ def main():
     init_session_state()
     
     # Header
-    st.markdown('<p class="big-font">Brand Positioning Intelligence Platform</p>', unsafe_allow_html=True)
-    st.markdown("**AI-powered competitive intelligence and positioning strategy for enterprise brands**")
+    st.markdown('<div class="main-header">Brand Positioning Intelligence Platform</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">AI-powered competitive intelligence and positioning strategy for enterprise brands</div>', unsafe_allow_html=True)
     
     # Sidebar
     with st.sidebar:
         # Show current mode
-        from config import Config
+        from brand_positioning.config import Config
         mode_info = Config.get_mode_info()
         
         st.markdown("### Current Mode")
@@ -291,8 +380,7 @@ def main():
                 }
                 
                 # Run analysis based on type
-                st.markdown("---")
-                st.markdown("### Analysis in Progress")
+                st.markdown('<div class=\"section-header\">Analysis in Progress</div>', unsafe_allow_html=True)
                 
                 if analysis_type == "Quick Market Intelligence Only":
                     # Quick parallel analysis
@@ -319,8 +407,7 @@ def main():
     
     # Display results if analysis is complete
     if st.session_state.analysis_complete and st.session_state.analysis_result:
-        st.markdown("---")
-        st.markdown("## Analysis Results")
+        st.markdown('<div class="section-header">Analysis Results</div>', unsafe_allow_html=True)
         display_results(st.session_state.analysis_result)
         
         # Reset button
