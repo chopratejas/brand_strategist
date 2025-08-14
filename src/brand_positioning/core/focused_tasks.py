@@ -24,10 +24,11 @@ def create_niche_positioning_task(brand_info: dict, agent):
         - Product: {product}  
         - Target: {target}
         
-        Use the Competitor Gap Research tool to understand current market positioning.
-        Use the Positioning Opportunity Finder tool to identify strategic opportunities.
+        STEP 1: Use the Competitor Gap Research tool with brand JSON: {{"brand": "{brand_name}", "product": "{product}"}}
+        STEP 2: Use the Positioning Opportunity Finder tool with the same brand JSON
         
-        Your job: Find the specific sub-category this brand can own and defend.
+        CRITICAL: Research the ACTUAL brand first. What do they currently claim? Who are their real competitors?
+        Your job: Find a MORE SPECIFIC sub-category than what they currently claim.
         
         Think like these EXACT examples:
         - "collagen powder for perimenopausal women" (not "wellness supplements" or "women's health")
@@ -45,17 +46,21 @@ def create_niche_positioning_task(brand_info: dict, agent):
         If you write anything broad like "wellness for women" or "productivity for teams" - RESTART.
         """,
         expected_output="""
-        ULTRA-SPECIFIC NICHE POSITIONING:
+        BRAND-SPECIFIC NICHE POSITIONING:
         
-        **Your Exact Niche:** [demographic + use case in 3-6 words, like "collagen for perimenopausal women"]
+        **Current Positioning Research:** [What does this brand currently claim based on your research?]
         
-        **Customer Language:** "[Exact words your customers use to describe this problem - quote research]"
+        **Direct Competitors Found:** [List 2-3 actual competitors you discovered]
         
-        **Why You Win:** [One specific reason competitors can't easily copy this positioning]
+        **Your Exact Niche:** [demographic + use case in 3-6 words, MORE specific than current positioning]
         
-        **Your Category Story:** "[Brand] is the only [exact niche] designed specifically for [exact customer pain]"
+        **Customer Language:** "[Exact words from research - quote actual customer reviews/complaints]"
         
-        MUST BE NARROW. If more than 10 competitors could claim this exact positioning, make it more specific.
+        **Why This Brand Wins:** [Specific advantage based on their current product/capabilities]
+        
+        **Positioning Gap:** [What specific gap in competitor positioning does this fill?]
+        
+        MUST be based on ACTUAL research, not assumptions.
         """,
         agent=agent,
         async_execution=False
@@ -74,13 +79,19 @@ def create_strategic_move_task(brand_info: dict, agent, positioning_context=None
     
     return Task(
         description=f"""
-        Based on the positioning strategy, identify ONE smart strategic move for {brand_name}.
+        Based on {brand_name}'s CURRENT capabilities and positioning research, identify ONE strategic move.
         {context}
         
-        Think like these EXACT examples:
-        - "Launch a 'Perimenopause Collagen Quiz' to capture this specific audience"
-        - "Create 'Creative Agency Chaos' video series interviewing 20 agency owners about project disasters"
-        - "Partner with 5 entrepreneurship podcasts for 'Anxious Entrepreneur' segment sponsorships"
+        CRITICAL: Don't use templated examples. Base this on:
+        1. What this specific brand actually does today
+        2. What customer pain points you found in research
+        3. What competitors are NOT doing
+        4. What this brand could realistically execute
+        
+        AVOID these templated patterns:
+        - Generic "Launch X Quiz" suggestions
+        - "Create Y video series" without brand relevance  
+        - "Partner with Z podcasts" without specific rationale
         
         ULTRA-SPECIFIC REQUIREMENTS:
         1. Must include EXACT tactic name (like "Perimenopause Collagen Quiz")
@@ -93,19 +104,23 @@ def create_strategic_move_task(brand_info: dict, agent, positioning_context=None
         If you write anything generic like "create content around X" - RESTART. Be obsessively specific.
         """,
         expected_output="""
-        ONE SPECIFIC STRATEGIC MOVE:
+        BRAND-SPECIFIC STRATEGIC MOVE:
         
-        **Your Move:** [Exact tactic name with specific numbers - like "Launch 'X Quiz' interviewing 20 Y people"]
+        **Research Foundation:** [What you learned about this brand's current state and customer problems]
+        
+        **Your Move:** [Exact tactic name based on brand's actual capabilities and customer research]
+        
+        **Why This Brand Can Execute:** [Specific reason this aligns with their current resources/positioning]
         
         **30-Day Execution:**
-        - Week 1: [Specific task]
-        - Week 2: [Specific task] 
-        - Week 3: [Specific task]
-        - Week 4: [Specific task]
+        - Week 1: [Specific task based on brand's actual situation]
+        - Week 2: [Specific task based on research findings] 
+        - Week 3: [Specific task leveraging brand's strengths]
+        - Week 4: [Specific task targeting discovered customer pain]
         
-        **Why This Owns Your Niche:** [How this makes you the obvious choice in your exact positioning]
+        **Competitive Advantage:** [How this exploits a gap you found in competitor research]
         
-        MUST include exact tactic name, specific numbers, and week-by-week execution plan.
+        MUST be based on ACTUAL brand research, not generic templates.
         """,
         agent=agent,
         async_execution=False

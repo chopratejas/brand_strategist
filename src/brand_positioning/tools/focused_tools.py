@@ -14,15 +14,19 @@ logger = logging.getLogger(__name__)
 
 class CompetitorGapTool(BaseTool):
     name: str = "Competitor Gap Research"
-    description: str = "Find gaps in competitor positioning with focused searches (2 API calls max)"
+    description: str = "Research specific brand's current positioning and direct competitors (2 API calls max)"
 
-    def _run(self, brand_query: str) -> str:
-        """Find positioning gaps with minimal API usage"""
+    def _run(self, brand_info: str) -> str:
+        """Research the actual brand and its specific competitive landscape"""
         try:
-            # Only 2 focused searches to find gaps
+            # Parse brand info to get actual brand name
+            brand_data = json.loads(brand_info) if isinstance(brand_info, str) and brand_info.startswith('{') else {"brand": brand_info.split()[0] if brand_info else "", "product": brand_info}
+            brand_name = brand_data.get("brand", "")
+            
+            # Brand-specific searches to understand CURRENT positioning
             search_queries = [
-                f"{brand_query} competitors alternatives market leaders",
-                f"best {brand_query} brands positioning strategy"
+                f'"{brand_name}" brand positioning strategy current website',
+                f'"{brand_name}" competitors direct alternatives similar companies'
             ]
             
             all_results = []
@@ -62,16 +66,21 @@ class CompetitorGapTool(BaseTool):
             })
 
 class PositioningOpportunityTool(BaseTool):
-    name: str = "Positioning Opportunity Finder"
-    description: str = "Find specific positioning opportunities and strategic moves (2 API calls max)"
+    name: str = "Positioning Opportunity Finder" 
+    description: str = "Find brand-specific positioning gaps and strategic opportunities (2 API calls max)"
 
-    def _run(self, brand_query: str) -> str:
-        """Find positioning opportunities with minimal API usage"""
+    def _run(self, brand_info: str) -> str:
+        """Find opportunities based on brand's current market position"""
         try:
-            # Only 2 strategic searches
+            # Parse brand info
+            brand_data = json.loads(brand_info) if isinstance(brand_info, str) and brand_info.startswith('{') else {"brand": brand_info.split()[0] if brand_info else "", "product": brand_info}
+            brand_name = brand_data.get("brand", "")
+            product = brand_data.get("product", "")
+            
+            # Brand-specific opportunity searches
             search_queries = [
-                f"{brand_query} market trends opportunities 2024",
-                f"{brand_query} customer pain points unmet needs"
+                f'"{brand_name}" customer reviews complaints pain points problems',
+                f'"{brand_name}" {product} market gaps underserved segments opportunities'
             ]
             
             all_results = []
