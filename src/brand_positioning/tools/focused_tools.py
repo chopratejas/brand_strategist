@@ -16,12 +16,12 @@ class CompetitorGapTool(BaseTool):
     name: str = "Competitor Gap Research"
     description: str = "Research specific brand's current positioning and direct competitors (2 API calls max)"
 
-    def _run(self, brand_info: str) -> str:
+    def _run(self, brand: str, product: str = "") -> str:
         """Research the actual brand and its specific competitive landscape"""
         try:
-            # Parse brand info to get actual brand name
-            brand_data = json.loads(brand_info) if isinstance(brand_info, str) and brand_info.startswith('{') else {"brand": brand_info.split()[0] if brand_info else "", "product": brand_info}
-            brand_name = brand_data.get("brand", "")
+            # Use direct parameters instead of parsing JSON
+            brand_name = brand
+            brand_data = {"brand": brand, "product": product}
             
             # Brand-specific searches to understand CURRENT positioning
             search_queries = [
@@ -62,20 +62,19 @@ class CompetitorGapTool(BaseTool):
             logger.error(f"Competitor gap research failed: {str(e)}")
             return json.dumps({
                 "error": f"Gap research failed: {str(e)}",
-                "query": brand_info
+                "query": f"{brand} {product}"
             })
 
 class PositioningOpportunityTool(BaseTool):
     name: str = "Positioning Opportunity Finder" 
     description: str = "Find brand-specific positioning gaps and strategic opportunities (2 API calls max)"
 
-    def _run(self, brand_info: str) -> str:
+    def _run(self, brand: str, product: str = "") -> str:
         """Find opportunities based on brand's current market position"""
         try:
-            # Parse brand info
-            brand_data = json.loads(brand_info) if isinstance(brand_info, str) and brand_info.startswith('{') else {"brand": brand_info.split()[0] if brand_info else "", "product": brand_info}
-            brand_name = brand_data.get("brand", "")
-            product = brand_data.get("product", "")
+            # Use direct parameters instead of parsing JSON
+            brand_name = brand
+            brand_data = {"brand": brand, "product": product}
             
             # Brand-specific opportunity searches
             search_queries = [
@@ -116,5 +115,5 @@ class PositioningOpportunityTool(BaseTool):
             logger.error(f"Opportunity research failed: {str(e)}")
             return json.dumps({
                 "error": f"Opportunity research failed: {str(e)}",
-                "query": brand_info
+                "query": f"{brand} {product}"
             })

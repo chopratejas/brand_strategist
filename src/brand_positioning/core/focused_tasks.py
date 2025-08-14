@@ -24,8 +24,8 @@ def create_niche_positioning_task(brand_info: dict, agent):
         - Product: {product}  
         - Target: {target}
         
-        STEP 1: Use the Competitor Gap Research tool with brand JSON: {{"brand": "{brand_name}", "product": "{product}"}}
-        STEP 2: Use the Positioning Opportunity Finder tool with the same brand JSON
+        STEP 1: Use the Competitor Gap Research tool with parameters: {{"brand": "{brand_name}", "product": "{product}"}}
+        STEP 2: Use the Positioning Opportunity Finder tool with parameters: {{"brand": "{brand_name}", "product": "{product}"}}
         
         CRITICAL: Research the ACTUAL brand first. What do they currently claim? Who are their real competitors?
         Your job: Find a MORE SPECIFIC sub-category than what they currently claim.
