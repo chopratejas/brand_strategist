@@ -53,7 +53,7 @@ class CompetitorGapTool(BaseTool):
                 })
             
             return json.dumps({
-                "query": brand_query,
+                "query": f"{brand_name} competitors",
                 "competitor_count": len(competitor_insights),
                 "positioning_clues": competitor_insights
             })
@@ -62,7 +62,7 @@ class CompetitorGapTool(BaseTool):
             logger.error(f"Competitor gap research failed: {str(e)}")
             return json.dumps({
                 "error": f"Gap research failed: {str(e)}",
-                "query": brand_query
+                "query": brand_info
             })
 
 class PositioningOpportunityTool(BaseTool):
@@ -107,7 +107,7 @@ class PositioningOpportunityTool(BaseTool):
                 })
             
             return json.dumps({
-                "query": brand_query,
+                "query": f"{brand_name} opportunities",
                 "opportunity_count": len(opportunities),
                 "strategic_insights": opportunities
             })
@@ -116,5 +116,5 @@ class PositioningOpportunityTool(BaseTool):
             logger.error(f"Opportunity research failed: {str(e)}")
             return json.dumps({
                 "error": f"Opportunity research failed: {str(e)}",
-                "query": brand_query
+                "query": brand_info
             })
