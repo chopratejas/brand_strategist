@@ -34,6 +34,7 @@ def create_positioning_specialist_agent():
         allow_delegation=False,
         llm=ChatOpenAI(
             model=Config.OPENAI_MODEL,
+            api_key=Config.OPENAI_API_KEY,
             temperature=0.1
         ),
         tools=[
