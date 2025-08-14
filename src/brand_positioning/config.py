@@ -6,6 +6,11 @@ load_dotenv()
 # Disable CrewAI telemetry to avoid connection errors
 os.environ["OTEL_SDK_DISABLED"] = "true"
 
+# Langfuse Observability Configuration  
+os.environ["LANGFUSE_PUBLIC_KEY"] = os.getenv("LANGFUSE_PUBLIC_KEY", "")
+os.environ["LANGFUSE_SECRET_KEY"] = os.getenv("LANGFUSE_SECRET_KEY", "")
+os.environ["LANGFUSE_HOST"] = os.getenv("LANGFUSE_HOST", "https://us.cloud.langfuse.com")
+
 class Config:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") 
@@ -18,25 +23,23 @@ class Config:
     OPENAI_MODEL = "gpt-4o"
     CLAUDE_MODEL = "claude-3-5-sonnet-20241022"
     
-    # Search Configuration (Dynamic based on mode)
+    # Focused Search Configuration (Minimal API usage)
     @classmethod
     def get_search_config(cls):
-        """Get search configuration based on dev/prod mode"""
+        """Get focused search configuration - minimal API usage for targeted insights"""
         if cls.DEV_MODE:
             return {
-                "competitor_searches": 2,      # Minimal for dev
-                "customer_searches": 2,        # Minimal for dev  
-                "trend_searches": 1,           # Minimal for dev
-                "results_per_search": 5,       # Fewer results per search
-                "total_serp_calls": 5          # Total: 2+2+1 = 5 calls
+                "gap_research_calls": 2,       # Find competitor gaps
+                "opportunity_calls": 2,        # Find positioning opportunities
+                "results_per_search": 5,       # 5 results per search
+                "total_serp_calls": 4          # Total: 2+2 = 4 calls
             }
         else:
             return {
-                "competitor_searches": 6,      # Full production analysis
-                "customer_searches": 8,        # Comprehensive customer insights
-                "trend_searches": 6,           # Complete trend analysis  
-                "results_per_search": 10,      # Full results per search
-                "total_serp_calls": 20         # Total: 6+8+6 = 20 calls
+                "gap_research_calls": 2,       # Same focused approach in prod
+                "opportunity_calls": 2,        # Quality over quantity
+                "results_per_search": 5,       # Still focused
+                "total_serp_calls": 4          # Total: 2+2 = 4 calls (much cheaper!)
             }
     
     # Rate Limiting
@@ -49,8 +52,8 @@ class Config:
         return {
             "mode": "Development" if cls.DEV_MODE else "Production",
             "serp_calls": config["total_serp_calls"],
-            "estimated_cost": "$1-2" if cls.DEV_MODE else "$5-8",
-            "estimated_time": "2-3 minutes" if cls.DEV_MODE else "8-12 minutes"
+            "estimated_cost": "$0.20" if cls.DEV_MODE else "$0.20",  # Much cheaper!
+            "estimated_time": "1-2 minutes" if cls.DEV_MODE else "1-2 minutes"  # Much faster!
         }
     
     @classmethod
