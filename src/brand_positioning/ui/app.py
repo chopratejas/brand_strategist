@@ -464,6 +464,10 @@ def main():
     # API Configuration Section
     st.markdown('<div class="section-header">API Configuration</div>', unsafe_allow_html=True)
     
+    # Check if required keys are available
+    has_openai = bool(os.getenv("OPENAI_API_KEY") or st.session_state.get("openai_key"))
+    has_serp = bool(os.getenv("SERP_API_KEY") or st.session_state.get("serp_key"))
+    
     with st.expander("🔑 Enter Your API Keys", expanded=not (has_openai and has_serp)):
         st.markdown("**Required for analysis:**")
         st.markdown("💡 *Keys are stored only for your session and never saved permanently*")
@@ -529,10 +533,6 @@ def main():
                 
             if langfuse_public and langfuse_secret:
                 st.success("Langfuse keys saved!")
-    
-    # Check if required keys are available
-    has_openai = bool(os.getenv("OPENAI_API_KEY") or st.session_state.get("openai_key"))
-    has_serp = bool(os.getenv("SERP_API_KEY") or st.session_state.get("serp_key"))
     
     if not (has_openai and has_serp):
         st.warning("⚠️ Please enter your OpenAI and SerpAPI keys above to run analysis")
