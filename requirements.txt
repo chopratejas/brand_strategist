@@ -10,3 +10,4 @@ python-dotenv
 pydantic
 requests
 anthropic
+pysqlite3-binary
