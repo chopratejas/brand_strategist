@@ -19,9 +19,18 @@ class CompetitorGapTool(BaseTool):
     def _run(self, brand: str, product: str = "") -> str:
         """Research the actual brand and its specific competitive landscape"""
         try:
-            # Use direct parameters instead of parsing JSON
-            brand_name = brand
-            brand_data = {"brand": brand, "product": product}
+            # Handle both direct parameters and JSON string input
+            if brand.startswith("{") and brand.endswith("}"):
+                # Agent passed JSON string, parse it
+                data = json.loads(brand)
+                brand_name = data.get("brand", "")
+                product_name = data.get("product", "")
+            else:
+                # Direct parameters
+                brand_name = brand
+                product_name = product
+                
+            brand_data = {"brand": brand_name, "product": product_name}
             
             # Brand-specific searches to understand CURRENT positioning
             search_queries = [
@@ -72,14 +81,23 @@ class PositioningOpportunityTool(BaseTool):
     def _run(self, brand: str, product: str = "") -> str:
         """Find opportunities based on brand's current market position"""
         try:
-            # Use direct parameters instead of parsing JSON
-            brand_name = brand
-            brand_data = {"brand": brand, "product": product}
+            # Handle both direct parameters and JSON string input
+            if brand.startswith("{") and brand.endswith("}"):
+                # Agent passed JSON string, parse it
+                data = json.loads(brand)
+                brand_name = data.get("brand", "")
+                product_name = data.get("product", "")
+            else:
+                # Direct parameters
+                brand_name = brand
+                product_name = product
+                
+            brand_data = {"brand": brand_name, "product": product_name}
             
             # Brand-specific opportunity searches
             search_queries = [
                 f'"{brand_name}" customer reviews complaints pain points problems',
-                f'"{brand_name}" {product} market gaps underserved segments opportunities'
+                f'"{brand_name}" {product_name} market gaps underserved segments opportunities'
             ]
             
             all_results = []

@@ -8,8 +8,27 @@ from brand_positioning.agents.focused_agents import create_positioning_specialis
 from brand_positioning.core.focused_tasks import create_niche_positioning_task, create_strategic_move_task
 from brand_positioning.config import Config
 import logging
+import re
 
 logger = logging.getLogger(__name__)
+
+def clean_result_content(raw_content):
+    """Clean up raw LLM output by removing internal reasoning and formatting"""
+    if not raw_content:
+        return raw_content
+    
+    # Remove "Thought:" sections and other internal reasoning
+    content = str(raw_content)
+    
+    # Remove patterns like "Thought: ..." or "```\nThought: ..."
+    content = re.sub(r'```\s*Thought:.*?```\s*', '', content, flags=re.DOTALL)
+    content = re.sub(r'Thought:.*?\n\n', '', content, flags=re.DOTALL)
+    content = re.sub(r'^```.*?```\s*', '', content, flags=re.DOTALL | re.MULTILINE)
+    
+    # Clean up multiple newlines
+    content = re.sub(r'\n{3,}', '\n\n', content)
+    
+    return content.strip()
 
 def run_focused_positioning_analysis(brand_info: dict, status_callback=None):
     """
@@ -59,8 +78,8 @@ def run_focused_positioning_analysis(brand_info: dict, status_callback=None):
         return {
             "success": True,
             "brand_info": brand_info,
-            "niche_positioning": positioning_result.raw,
-            "strategic_move": strategic_result.raw,
+            "niche_positioning": clean_result_content(positioning_result.raw),
+            "strategic_move": clean_result_content(strategic_result.raw),
             "api_calls_used": 4,  # Only 4 SerpAPI calls total
             "cost_estimate": "$0.20"  # Much lower cost
         }
