@@ -1,9 +1,9 @@
 streamlit
-crewai
+crewai==0.157.0
 langchain
 langchain-community
-langchain-openai
-openai
+langchain-openai==0.3.29
+openai==1.89.0
 google-search-results
 langfuse
 python-dotenv
