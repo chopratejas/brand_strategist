@@ -23,23 +23,29 @@ class Config:
     OPENAI_MODEL = "gpt-4o"
     CLAUDE_MODEL = "claude-3-5-sonnet-20241022"
     
-    # Search Configuration for Focused Positioning Analysis
+    # Search Configuration for Full Analysis
     @classmethod
     def get_search_config(cls):
-        """Get search configuration for focused positioning tools"""
+        """Get search configuration for market intelligence tools"""
         if cls.DEV_MODE:
             return {
+                "competitor_searches": 2,      # Competitor research calls
+                "customer_searches": 2,        # Customer insight calls  
+                "trend_searches": 2,           # Market trend calls
                 "gap_research_calls": 2,       # Find competitor gaps (focused workflow)
                 "opportunity_calls": 2,        # Find positioning opportunities (focused workflow)
                 "results_per_search": 5,       # 5 results per search
-                "total_serp_calls": 4          # Total: 2+2 = 4 calls for focused analysis
+                "total_serp_calls": 6          # Total: 2+2+2 = 6 calls for full analysis
             }
         else:
             return {
-                "gap_research_calls": 3,       # Find competitor gaps (focused workflow)
-                "opportunity_calls": 3,        # Find positioning opportunities (focused workflow)
+                "competitor_searches": 3,      # More comprehensive in prod
+                "customer_searches": 3,        # More customer insights
+                "trend_searches": 3,           # More trend analysis
+                "gap_research_calls": 2,       # Find competitor gaps (focused workflow)
+                "opportunity_calls": 2,        # Find positioning opportunities (focused workflow)
                 "results_per_search": 8,       # More results per search
-                "total_serp_calls": 6          # Total: 3+3 = 6 calls for focused analysis
+                "total_serp_calls": 9          # Total: 3+3+3 = 9 calls for full analysis
             }
     
     # Rate Limiting
@@ -52,8 +58,8 @@ class Config:
         return {
             "mode": "Development" if cls.DEV_MODE else "Production",
             "serp_calls": config["total_serp_calls"],
-            "estimated_cost": "$0.20" if cls.DEV_MODE else "$0.30",  # Updated for focused analysis
-            "estimated_time": "1-2 minutes" if cls.DEV_MODE else "2-3 minutes"  # Faster focused timing
+            "estimated_cost": "$0.30" if cls.DEV_MODE else "$0.45",  # Updated for full analysis
+            "estimated_time": "2-4 minutes" if cls.DEV_MODE else "4-6 minutes"  # More realistic timing
         }
     
     @classmethod
