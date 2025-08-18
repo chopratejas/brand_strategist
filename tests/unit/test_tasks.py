@@ -1,5 +1,5 @@
 """
-Unit tests for task definitions.
+Unit tests for focused task definitions.
 """
 
 import unittest
@@ -9,16 +9,12 @@ import sys
 # Add src to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from brand_positioning.core.tasks import create_positioning_strategy_task, create_strategic_action_task
-from brand_positioning.core.parallel_tasks import (
-    create_competitor_analysis_task,
-    create_customer_insights_task,
-    create_market_trends_task
-)
+from brand_positioning.core.focused_tasks import create_niche_positioning_task, create_strategic_move_task
+from brand_positioning.agents.focused_agents import create_positioning_specialist_agent
 
 
-class TestTasks(unittest.TestCase):
-    """Test task creation and configuration."""
+class TestFocusedTasks(unittest.TestCase):
+    """Test focused task creation and configuration."""
 
     def setUp(self):
         """Set up test data."""
@@ -27,99 +23,58 @@ class TestTasks(unittest.TestCase):
             "product": "AI-powered test platform",
             "target": "Tech entrepreneurs"
         }
+        self.agent = create_positioning_specialist_agent()
 
-    def test_positioning_strategy_task_creation(self):
-        """Test positioning strategy task creation."""
-        task = create_positioning_strategy_task(self.test_brand_info)
+    def test_niche_positioning_task_creation(self):
+        """Test niche positioning task creation."""
+        task = create_niche_positioning_task(self.test_brand_info, self.agent)
         
         self.assertIsNotNone(task)
         self.assertIn("TestBrand", task.description)
         self.assertIn("AI-powered test platform", task.description)
-        self.assertIn("positioning strategy", task.description.lower())
-        self.assertIn("ULTRA-SPECIFIC", task.expected_output)
+        self.assertIn("niche", task.description.lower())
+        self.assertIn("Your Exact Niche", task.expected_output)
 
-    def test_positioning_task_with_intelligence_data(self):
-        """Test positioning task with intelligence context."""
-        intelligence_data = {
-            "competitor_analysis": "Test competitor data",
-            "customer_insights": "Test customer data",
-            "market_trends": "Test trend data"
-        }
-        
-        task = create_positioning_strategy_task(self.test_brand_info, intelligence_data)
-        
-        self.assertIn("MARKET INTELLIGENCE FINDINGS", task.description)
-        self.assertIn("Test competitor data", task.description)
-        self.assertIn("Test customer data", task.description)
-        self.assertIn("Test trend data", task.description)
-
-    def test_strategic_action_task_creation(self):
-        """Test strategic action task creation."""
-        task = create_strategic_action_task(self.test_brand_info)
+    def test_strategic_move_task_creation(self):
+        """Test strategic move task creation."""
+        task = create_strategic_move_task(self.test_brand_info, self.agent)
         
         self.assertIsNotNone(task)
         self.assertIn("TestBrand", task.description)
-        self.assertIn("strategic moves", task.description.lower())
-        self.assertIn("implementation roadmap", task.expected_output.lower())
+        self.assertIn("strategic move", task.description.lower())
+        self.assertIn("30-Day Execution", task.expected_output)
 
-    def test_strategic_action_task_with_positioning_data(self):
-        """Test strategic action task with positioning context."""
-        positioning_data = "Test positioning strategy results"
+    def test_strategic_move_task_with_positioning_context(self):
+        """Test strategic move task with positioning context."""
+        positioning_context = "Test positioning results"
         
-        task = create_strategic_action_task(self.test_brand_info, positioning_data)
+        task = create_strategic_move_task(self.test_brand_info, self.agent, positioning_context)
         
-        self.assertIn("POSITIONING STRATEGY", task.description)
-        self.assertIn("Test positioning strategy results", task.description)
-
-    def test_competitor_analysis_task_creation(self):
-        """Test competitor analysis task creation."""
-        task = create_competitor_analysis_task(self.test_brand_info)
-        
-        self.assertIsNotNone(task)
-        self.assertIn("TestBrand", task.description)
-        self.assertIn("Competitor Research tool", task.description)
-        self.assertTrue(task.async_execution)
-
-    def test_customer_insights_task_creation(self):
-        """Test customer insights task creation."""
-        task = create_customer_insights_task(self.test_brand_info)
-        
-        self.assertIsNotNone(task)
-        self.assertIn("TestBrand", task.description)
-        self.assertIn("Customer Insight Research tool", task.description)
-        self.assertTrue(task.async_execution)
-
-    def test_market_trends_task_creation(self):
-        """Test market trends task creation."""
-        task = create_market_trends_task(self.test_brand_info)
-        
-        self.assertIsNotNone(task)
-        self.assertIn("TestBrand", task.description)
-        self.assertIn("Market Trend Research tool", task.description)
-        self.assertTrue(task.async_execution)
+        self.assertIn("POSITIONING CONTEXT", task.description)
+        self.assertIn("Test positioning results", task.description)
 
     def test_task_brand_info_validation(self):
         """Test task creation with incomplete brand info."""
         incomplete_brand_info = {"brand": "TestBrand"}
         
         # Tasks should handle missing fields gracefully
-        task = create_positioning_strategy_task(incomplete_brand_info)
+        task = create_niche_positioning_task(incomplete_brand_info, self.agent)
         self.assertIsNotNone(task)
         self.assertIn("TestBrand", task.description)
 
-    def test_task_descriptions_industry_agnostic(self):
-        """Test that task descriptions are industry-agnostic."""
-        task = create_positioning_strategy_task(self.test_brand_info)
+    def test_task_descriptions_focus_on_specificity(self):
+        """Test that task descriptions emphasize specificity."""
+        task = create_niche_positioning_task(self.test_brand_info, self.agent)
         
-        # Should not contain industry-specific terms
+        # Should emphasize specificity
         description = task.description.lower()
-        self.assertNotIn("wellness", description)
-        self.assertNotIn("health", description)
-        self.assertNotIn("supplement", description)
+        self.assertIn("specific", description)
+        self.assertIn("exact", description) 
+        self.assertIn("ultra-specific", description)
         
-        # Should contain generic business terms
-        self.assertIn("brand", description)
-        self.assertIn("strategist", description)
+        # Should ban generic terms
+        self.assertIn("banned words", description)
+        self.assertIn("wellness", description)  # Listed as banned
 
 
 if __name__ == '__main__':

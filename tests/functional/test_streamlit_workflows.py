@@ -43,7 +43,7 @@ class TestStreamlitWorkflows(unittest.TestCase):
         
         # Verify dev mode configuration is working
         self.assertEqual(mode_info['mode'], 'Development')
-        self.assertEqual(mode_info['serp_calls'], 5)
+        self.assertEqual(mode_info['serp_calls'], 4)
 
     def test_form_validation_logic(self):
         """Test form validation logic without UI components."""
@@ -67,9 +67,9 @@ class TestStreamlitWorkflows(unittest.TestCase):
         
         self.assertFalse(invalid_brand_info["brand"].strip())
 
-    def test_result_display_error_handling(self):
+    def test_focused_result_display_error_handling(self):
         """Test that UI properly handles error results."""
-        from brand_positioning.ui.app import display_results
+        from brand_positioning.ui.app import display_focused_results
         
         # Test error result
         error_result = {
@@ -77,18 +77,18 @@ class TestStreamlitWorkflows(unittest.TestCase):
         }
         
         with patch('streamlit.error') as mock_error:
-            display_results(error_result)
+            display_focused_results(error_result)
             
             # Verify error was displayed
             mock_error.assert_called_once()
             call_args = mock_error.call_args[0][0]
             self.assertIn("API key validation failed", call_args)
 
-    def test_result_display_formatting(self):
-        """Test that analysis results are properly formatted."""
-        from brand_positioning.ui.app import display_results
+    def test_focused_result_display_formatting(self):
+        """Test that focused analysis results are properly formatted."""
+        from brand_positioning.ui.app import display_focused_results
         
-        # Create realistic test result
+        # Create realistic focused test result
         test_result = {
             "success": True,
             "brand_info": {
@@ -96,41 +96,37 @@ class TestStreamlitWorkflows(unittest.TestCase):
                 "product": "AI analytics platform",
                 "target": "Small businesses"
             },
-            "intelligence": {
-                "competitor_analysis": "Test competitor analysis",
-                "customer_insights": "Test customer insights", 
-                "market_trends": "Test market trends"
-            }
+            "niche_positioning": "Test niche positioning result",
+            "strategic_move": "Test strategic move result"
         }
         
         # Test with mock Streamlit functions
         with patch('streamlit.markdown') as mock_markdown, \
-             patch('streamlit.tabs') as mock_tabs, \
-             patch('streamlit.expander') as mock_expander:
+             patch('streamlit.columns') as mock_columns, \
+             patch('streamlit.metric') as mock_metric:
             
-            # Mock tabs context manager
-            mock_tab = MagicMock()
-            mock_tab.__enter__ = MagicMock(return_value=mock_tab)
-            mock_tab.__exit__ = MagicMock(return_value=None)
-            mock_tabs.return_value = [mock_tab, mock_tab, mock_tab]
+            # Mock columns context manager
+            mock_col = MagicMock()
+            mock_col.__enter__ = MagicMock(return_value=mock_col)
+            mock_col.__exit__ = MagicMock(return_value=None)
             
-            # Mock expander context manager
-            mock_exp = MagicMock()
-            mock_exp.__enter__ = MagicMock(return_value=mock_exp)
-            mock_exp.__exit__ = MagicMock(return_value=None)
-            mock_expander.return_value = mock_exp
+            # Set up side effect to return correct number of columns for each call
+            mock_columns.side_effect = [
+                [mock_col, mock_col],      # First call: 2 columns for main content
+                [mock_col, mock_col, mock_col]  # Second call: 3 columns for metrics
+            ]
             
             # Run display function
-            display_results(test_result)
+            display_focused_results(test_result)
             
             # Verify that formatting functions were called
             self.assertTrue(mock_markdown.called)
-            self.assertTrue(mock_tabs.called)
+            self.assertTrue(mock_columns.called)
 
-    @patch('brand_positioning.tools.tools.GoogleSearch')
+    @patch('brand_positioning.tools.focused_tools.GoogleSearch')
     @patch('crewai.crew.Crew.kickoff')
-    def test_workflow_integration_structure(self, mock_kickoff, mock_serp):
-        """Test that workflow integration has correct structure."""
+    def test_focused_workflow_integration_structure(self, mock_kickoff, mock_serp):
+        """Test that focused workflow integration has correct structure."""
         
         # Set up basic mocks
         mock_serp_instance = MagicMock()
@@ -144,8 +140,8 @@ class TestStreamlitWorkflows(unittest.TestCase):
         mock_result.raw = "Test analysis result"
         mock_kickoff.return_value = mock_result
         
-        # Test the integration structure
-        from brand_positioning.core.parallel_crews import run_parallel_intelligence_sync
+        # Test the focused integration structure
+        from brand_positioning.core.focused_workflow import run_focused_positioning_analysis
         
         test_brand_info = {
             "brand": "IntegrationTest",
@@ -153,11 +149,12 @@ class TestStreamlitWorkflows(unittest.TestCase):
             "target": "Test users"
         }
         
-        result = run_parallel_intelligence_sync(test_brand_info)
+        result = run_focused_positioning_analysis(test_brand_info)
         
         # Verify basic structure
         self.assertTrue(result.get("success"), f"Integration failed: {result.get('error')}")
-        self.assertIn("intelligence", result)
+        self.assertIn("niche_positioning", result)
+        self.assertIn("strategic_move", result)
         self.assertEqual(result["brand_info"]["brand"], "IntegrationTest")
 
 

@@ -1,5 +1,5 @@
 """
-Unit tests for research tools.
+Unit tests for focused research tools.
 """
 
 import unittest
@@ -11,50 +11,36 @@ from unittest.mock import patch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 
-class TestTools(unittest.TestCase):
-    """Test research tool functionality."""
+class TestFocusedTools(unittest.TestCase):
+    """Test focused research tool functionality."""
 
     @patch.dict(os.environ, {
         'OPENAI_API_KEY': 'test_openai_key',
         'SERP_API_KEY': 'test_serp_key'
     })
-    def test_competitor_research_tool_creation(self):
-        """Test competitor research tool creation."""
-        from brand_positioning.tools.tools import CompetitorResearchTool
+    def test_competitor_gap_tool_creation(self):
+        """Test competitor gap tool creation."""
+        from brand_positioning.tools.focused_tools import CompetitorGapTool
         
-        tool = CompetitorResearchTool()
+        tool = CompetitorGapTool()
         
         self.assertIsNotNone(tool)
-        self.assertEqual(tool.name, "Competitor Research")
-        self.assertIn("competitors", tool.description.lower())
+        self.assertEqual(tool.name, "Competitor Gap Research")
+        self.assertIn("competitor", tool.description.lower())
 
     @patch.dict(os.environ, {
         'OPENAI_API_KEY': 'test_openai_key',
         'SERP_API_KEY': 'test_serp_key'
     })
-    def test_customer_insight_tool_creation(self):
-        """Test customer insight tool creation."""
-        from brand_positioning.tools.tools import CustomerInsightTool
+    def test_positioning_opportunity_tool_creation(self):
+        """Test positioning opportunity tool creation."""
+        from brand_positioning.tools.focused_tools import PositioningOpportunityTool
         
-        tool = CustomerInsightTool()
-        
-        self.assertIsNotNone(tool)
-        self.assertEqual(tool.name, "Customer Insight Research")
-        self.assertIn("customer", tool.description.lower())
-
-    @patch.dict(os.environ, {
-        'OPENAI_API_KEY': 'test_openai_key',
-        'SERP_API_KEY': 'test_serp_key'
-    })
-    def test_market_trend_tool_creation(self):
-        """Test market trend tool creation."""
-        from brand_positioning.tools.tools import MarketTrendTool
-        
-        tool = MarketTrendTool()
+        tool = PositioningOpportunityTool()
         
         self.assertIsNotNone(tool)
-        self.assertEqual(tool.name, "Market Trend Research")
-        self.assertIn("trends", tool.description.lower())
+        self.assertEqual(tool.name, "Positioning Opportunity Finder")
+        self.assertIn("opportunity", tool.description.lower())
 
     def test_tool_configuration_usage(self):
         """Test that tools use configuration settings."""
@@ -62,7 +48,8 @@ class TestTools(unittest.TestCase):
         
         # Test that config returns expected structure
         search_config = Config.get_search_config()
-        self.assertIn('competitor_searches', search_config)
+        self.assertIn('gap_research_calls', search_config)
+        self.assertIn('opportunity_calls', search_config)
         self.assertIn('total_serp_calls', search_config)
 
 

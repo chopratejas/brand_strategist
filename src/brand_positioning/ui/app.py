@@ -3,7 +3,6 @@ import logging
 import time
 import json
 import os
-from brand_positioning.core.parallel_crews import run_parallel_analysis_sync, run_parallel_intelligence_sync
 from brand_positioning.core.focused_workflow import run_focused_positioning_analysis
 
 # Configure logging
@@ -114,10 +113,6 @@ st.markdown("""
 
 def init_session_state():
     """Initialize session state variables"""
-    if 'analysis_complete' not in st.session_state:
-        st.session_state.analysis_complete = False
-    if 'analysis_result' not in st.session_state:
-        st.session_state.analysis_result = None
     if 'openai_key' not in st.session_state:
         st.session_state.openai_key = ""
     if 'serp_key' not in st.session_state:
@@ -127,39 +122,6 @@ def init_session_state():
     if 'langfuse_secret' not in st.session_state:
         st.session_state.langfuse_secret = ""
 
-def run_full_analysis_with_status(brand_info):
-    """Run the complete brand positioning analysis with parallel crews"""
-    
-    # Create status tracking
-    status_placeholder = st.empty()
-    progress_bar = st.progress(0)
-    
-    def update_status(message, progress=None):
-        """Update status in real-time"""
-        with status_placeholder:
-            st.markdown(f'<div class="status-text">Status: {message}</div>', unsafe_allow_html=True)
-        if progress is not None:
-            progress_bar.progress(progress / 100)
-    
-    try:
-        update_status("Initializing parallel crews...", 5)
-        
-        # Run parallel analysis
-        result = run_parallel_analysis_sync(brand_info, status_callback=update_status)
-        
-        if result.get("success"):
-            update_status("Analysis completed successfully!", 100)
-            st.success("Parallel analysis completed!")
-            return result
-        else:
-            update_status(f"Analysis failed: {result.get('error', 'Unknown error')}", 100)
-            st.error(f"Analysis failed: {result.get('error', 'Unknown error')}")
-            return None
-        
-    except Exception as e:
-        update_status(f"Analysis failed: {str(e)}", 100)
-        st.error(f"Analysis failed: {str(e)}")
-        return None
 
 def run_focused_positioning_with_status(brand_info):
     """Run focused positioning analysis with status updates"""
@@ -195,39 +157,6 @@ def run_focused_positioning_with_status(brand_info):
         st.error(f"Focused analysis failed: {str(e)}")
         return None
 
-def run_quick_analysis_with_status(brand_info):
-    """Run quick parallel market intelligence only"""
-    
-    # Create status tracking
-    status_placeholder = st.empty()
-    progress_bar = st.progress(0)
-    
-    def update_status(message, progress=None):
-        """Update status in real-time"""
-        with status_placeholder:
-            st.markdown(f'<div class="status-text">Status: {message}</div>', unsafe_allow_html=True)
-        if progress is not None:
-            progress_bar.progress(progress / 100)
-    
-    try:
-        update_status("Starting parallel market intelligence...", 5)
-        
-        # Run parallel intelligence only
-        result = run_parallel_intelligence_sync(brand_info, status_callback=update_status)
-        
-        if result.get("success"):
-            update_status("Market intelligence completed!", 100)
-            st.success("Parallel market intelligence completed!")
-            return result
-        else:
-            update_status(f"Analysis failed: {result.get('error', 'Unknown error')}", 100)
-            st.error(f"Quick analysis failed: {result.get('error', 'Unknown error')}")
-            return None
-        
-    except Exception as e:
-        update_status(f"Analysis failed: {str(e)}", 100)
-        st.error(f"Quick analysis failed: {str(e)}")
-        return None
 
 def display_focused_results(result):
     """Display focused positioning results in a clean, founder-friendly format"""
@@ -275,110 +204,6 @@ def display_focused_results(result):
     with col3:
         st.metric("Analysis Time", "1-2 minutes")
 
-def display_results(result):
-    """Display the analysis results in a structured format"""
-    
-    if "error" in result:
-        st.error(f"Analysis failed: {result['error']}")
-        return
-    
-    # Brand Info Summary
-    st.markdown('<div class="section-header">Analysis Summary</div>', unsafe_allow_html=True)
-    brand_info = result.get("brand_info", {})
-    
-    st.markdown(f'''
-    <div class="brand-summary">
-        <div class="brand-item"><strong>Brand:</strong> {brand_info.get('brand', 'N/A')}</div>
-        <div class="brand-item"><strong>Product:</strong> {brand_info.get('product', 'N/A')}</div>
-        <div class="brand-item"><strong>Target Audience:</strong> {brand_info.get('target', 'N/A')}</div>
-    </div>
-    ''', unsafe_allow_html=True)
-    
-    # Check if this is full analysis or quick analysis
-    is_full_analysis = "positioning_strategy" in result and "strategic_actions" in result
-    
-    if is_full_analysis:
-        # Display full results in tabs
-        tab1, tab2, tab3 = st.tabs(["Market Intelligence", "Positioning Strategy", "Strategic Actions"])
-        
-        with tab1:
-            st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-            intelligence = result.get("market_intelligence", {})
-            if isinstance(intelligence, dict):
-                st.markdown('<div class="subsection-header">Competitor Analysis</div>', unsafe_allow_html=True)
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                competitor_content = intelligence.get("competitor_analysis", "No data available")
-                st.markdown(competitor_content)
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('<div class="subsection-header">Customer Insights</div>', unsafe_allow_html=True)
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                customer_content = intelligence.get("customer_insights", "No data available")
-                st.markdown(customer_content)
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('<div class="subsection-header">Market Trends</div>', unsafe_allow_html=True)
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                trends_content = intelligence.get("market_trends", "No data available")
-                st.markdown(trends_content)
-                st.markdown('</div>', unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                st.markdown(str(intelligence))
-                st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with tab2:
-            st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-            positioning = result.get("positioning_strategy", "No data available")
-            st.markdown('<div class="content-section">', unsafe_allow_html=True)
-            st.markdown(positioning)
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        with tab3:
-            st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-            actions = result.get("strategic_actions", "No data available")
-            st.markdown('<div class="content-section">', unsafe_allow_html=True)
-            st.markdown(actions)
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-    
-    else:
-        # Quick analysis - just show intelligence
-        st.markdown('<div class="section-header">Market Intelligence Results</div>', unsafe_allow_html=True)
-        intelligence = result.get("intelligence", {})
-        if isinstance(intelligence, dict):
-            tab1, tab2, tab3 = st.tabs(["Competitor Analysis", "Customer Insights", "Market Trends"])
-            
-            with tab1:
-                st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                st.markdown(intelligence.get("competitor_analysis", "No data available"))
-                st.markdown('</div>', unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-            
-            with tab2:
-                st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                st.markdown(intelligence.get("customer_insights", "No data available"))
-                st.markdown('</div>', unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-            with tab3:
-                st.markdown('<div class="tab-content">', unsafe_allow_html=True)
-                st.markdown('<div class="content-section">', unsafe_allow_html=True)
-                st.markdown(intelligence.get("market_trends", "No data available"))
-                st.markdown('</div>', unsafe_allow_html=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="content-section">', unsafe_allow_html=True)
-            st.markdown(str(intelligence))
-            st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Raw result for debugging (expandable)
-    with st.expander("Full Analysis Result (Technical)"):
-        st.json(result)
 
 def main():
     """Main application function"""
@@ -403,7 +228,7 @@ def main():
         
         st.markdown("### How it works")
         st.markdown(f"""
-        **Focused Analysis (Recommended):**
+        **Focused Positioning Analysis:**
         1. **Find Your Niche**: Specific positioning you can dominate ({mode_info['serp_calls']} SerpAPI calls)
         2. **Strategic Move**: One smart action to gain positioning advantage
         
@@ -569,16 +394,6 @@ def main():
                 help="Who is your ideal customer? Leave blank if unsure."
             )
             
-            # Analysis type selector
-            analysis_type = st.selectbox(
-                "Analysis Type",
-                [
-                    "Focused Positioning (Recommended) - Niche + Strategic Move",
-                    "Full Analysis (Market Intelligence + Positioning + Actions)", 
-                    "Quick Market Intelligence Only"
-                ],
-                help="Focused takes 1-2 minutes (4 API calls), Full takes 8-12 minutes (20 API calls)"
-            )
         
         # Submit button
         submitted = st.form_submit_button(
@@ -611,55 +426,19 @@ def main():
                     "target": target_audience.strip() if target_audience.strip() else "general market"
                 }
                 
-                # Run analysis based on type
+                # Run focused positioning analysis
                 st.markdown('<div class=\"section-header\">Analysis in Progress</div>', unsafe_allow_html=True)
+                st.markdown("**Expected Time:** 1-2 minutes with focused research")
+                st.markdown("**API Usage:** Only 4 SerpAPI calls ($0.20 cost)")
                 
-                if analysis_type == "Focused Positioning (Recommended) - Niche + Strategic Move":
-                    # New focused analysis
-                    st.markdown("**Expected Time:** 1-2 minutes with focused research")
-                    st.markdown("**API Usage:** Only 4 SerpAPI calls ($0.20 cost)")
-                    
-                    result = run_focused_positioning_with_status(brand_info)
-                    
-                    if result and result.get("success"):
-                        st.markdown("---")
-                        display_focused_results(result)
-                    else:
-                        st.error(f"Focused analysis failed: {result.get('error', 'Unknown error') if result else 'Unknown error'}")
+                result = run_focused_positioning_with_status(brand_info)
                 
-                elif analysis_type == "Quick Market Intelligence Only":
-                    # Quick parallel analysis
-                    st.markdown("**Expected Time:** 2-4 minutes with 3 parallel crews")
-                    
-                    result = run_quick_analysis_with_status(brand_info)
-                    
-                    if result and result.get("success"):
-                        st.markdown("---")
-                        display_results(result)
-                    else:
-                        st.error(f"Quick analysis failed: {result.get('error', 'Unknown error') if result else 'Unknown error'}")
-                
+                if result and result.get("success"):
+                    st.markdown("---")
+                    display_focused_results(result)
                 else:
-                    # Full parallel analysis  
-                    st.markdown("**Expected Time:** 6-10 minutes with parallel crews")
-                    
-                    result = run_full_analysis_with_status(brand_info)
-                    
-                    if result and result.get("success"):
-                        st.session_state.analysis_result = result
-                        st.session_state.analysis_complete = True
-                        st.rerun()
+                    st.error(f"Analysis failed: {result.get('error', 'Unknown error') if result else 'Unknown error'}")
     
-    # Display results if analysis is complete
-    if st.session_state.analysis_complete and st.session_state.analysis_result:
-        st.markdown('<div class="section-header">Analysis Results</div>', unsafe_allow_html=True)
-        display_results(st.session_state.analysis_result)
-        
-        # Reset button
-        if st.button("Run New Analysis", type="secondary"):
-            st.session_state.analysis_complete = False
-            st.session_state.analysis_result = None
-            st.rerun()
 
 if __name__ == "__main__":
     main()

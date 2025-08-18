@@ -43,133 +43,100 @@ class TestCoreFunctionality(unittest.TestCase):
         Config.DEV_MODE = True
         dev_config = Config.get_search_config()
         
-        self.assertEqual(dev_config['total_serp_calls'], 5)
-        self.assertIn('competitor_searches', dev_config)
-        self.assertIn('customer_searches', dev_config)
-        self.assertIn('trend_searches', dev_config)
+        self.assertEqual(dev_config['total_serp_calls'], 4)
+        self.assertIn('gap_research_calls', dev_config)
+        self.assertIn('opportunity_calls', dev_config)
+        self.assertIn('results_per_search', dev_config)
         
         # Test mode info
         mode_info = Config.get_mode_info()
         self.assertEqual(mode_info['mode'], 'Development')
-        self.assertEqual(mode_info['serp_calls'], 5)
+        self.assertEqual(mode_info['serp_calls'], 4)
 
-    def test_agents_can_be_created(self):
-        """Test that all agent types can be instantiated."""
-        from brand_positioning.agents.agents import (
-            create_market_intelligence_agent,
-            create_positioning_strategist_agent,
-            create_strategic_advisor_agent
-        )
+    def test_focused_agent_can_be_created(self):
+        """Test that focused positioning agent can be instantiated."""
+        from brand_positioning.agents.focused_agents import create_positioning_specialist_agent
         
         # Test agent creation
-        intelligence_agent = create_market_intelligence_agent()
-        positioning_agent = create_positioning_strategist_agent()
-        strategic_agent = create_strategic_advisor_agent()
+        positioning_agent = create_positioning_specialist_agent()
         
         # Verify basic properties
-        self.assertEqual(intelligence_agent.role, "Market Intelligence Specialist")
-        self.assertEqual(positioning_agent.role, "Brand Positioning Strategist")
-        self.assertEqual(strategic_agent.role, "Strategic Growth Advisor")
+        self.assertEqual(positioning_agent.role, "Brand Positioning Specialist")
         
         # Verify tools assignment
-        self.assertEqual(len(intelligence_agent.tools), 3)  # Should have 3 research tools
-        self.assertEqual(len(positioning_agent.tools), 0)   # No tools for positioning
-        self.assertEqual(len(strategic_agent.tools), 1)     # Should have trend tool
+        self.assertEqual(len(positioning_agent.tools), 2)  # Should have 2 focused tools
 
-    def test_tasks_contain_brand_information(self):
-        """Test that tasks are properly created with brand information."""
-        from brand_positioning.core.tasks import (
-            create_positioning_strategy_task,
-            create_strategic_action_task
+    def test_focused_tasks_contain_brand_information(self):
+        """Test that focused tasks are properly created with brand information."""
+        from brand_positioning.core.focused_tasks import (
+            create_niche_positioning_task,
+            create_strategic_move_task
         )
-        from brand_positioning.core.parallel_tasks import (
-            create_competitor_analysis_task,
-            create_customer_insights_task,
-            create_market_trends_task
-        )
+        from brand_positioning.agents.focused_agents import create_positioning_specialist_agent
         
-        # Test positioning task
-        positioning_task = create_positioning_strategy_task(self.test_brand_info)
+        agent = create_positioning_specialist_agent()
+        
+        # Test niche positioning task
+        positioning_task = create_niche_positioning_task(self.test_brand_info, agent)
         self.assertIn("TestBrand", positioning_task.description)
         self.assertIn("AI-powered test platform", positioning_task.description)
         
-        # Test strategic action task
-        action_task = create_strategic_action_task(self.test_brand_info)
-        self.assertIn("TestBrand", action_task.description)
-        
-        # Test parallel tasks
-        competitor_task = create_competitor_analysis_task(self.test_brand_info)
-        customer_task = create_customer_insights_task(self.test_brand_info)
-        trends_task = create_market_trends_task(self.test_brand_info)
-        
-        self.assertIn("TestBrand", competitor_task.description)
-        self.assertIn("TestBrand", customer_task.description)
-        self.assertIn("TestBrand", trends_task.description)
-        
-        # Verify async execution is enabled for parallel tasks
-        self.assertTrue(competitor_task.async_execution)
-        self.assertTrue(customer_task.async_execution)
-        self.assertTrue(trends_task.async_execution)
+        # Test strategic move task
+        move_task = create_strategic_move_task(self.test_brand_info, agent)
+        self.assertIn("TestBrand", move_task.description)
 
-    def test_tools_handle_basic_input_validation(self):
-        """Test that tools handle edge cases gracefully."""
-        from brand_positioning.tools.tools import (
-            CompetitorResearchTool,
-            CustomerInsightTool,
-            MarketTrendTool
+    def test_focused_tools_handle_basic_input_validation(self):
+        """Test that focused tools handle edge cases gracefully."""
+        from brand_positioning.tools.focused_tools import (
+            CompetitorGapTool,
+            PositioningOpportunityTool
         )
         
         # Test tool creation
-        competitor_tool = CompetitorResearchTool()
-        customer_tool = CustomerInsightTool()
-        trend_tool = MarketTrendTool()
+        gap_tool = CompetitorGapTool()
+        opportunity_tool = PositioningOpportunityTool()
         
         # Verify basic properties
-        self.assertEqual(competitor_tool.name, "Competitor Research")
-        self.assertEqual(customer_tool.name, "Customer Insight Research")
-        self.assertEqual(trend_tool.name, "Market Trend Research")
+        self.assertEqual(gap_tool.name, "Competitor Gap Research")
+        self.assertEqual(opportunity_tool.name, "Positioning Opportunity Finder")
         
-        # Test with empty query (should handle gracefully)
-        result = competitor_tool._run("")
+        # Test with empty brand (should handle gracefully)
+        result = gap_tool._run("")
         self.assertIsInstance(result, str)
         
-        # Test with None query (should handle gracefully)
-        result = competitor_tool._run(None)
+        # Test with basic brand info
+        result = opportunity_tool._run("TestBrand", "test product")
         self.assertIsInstance(result, str)
 
-    def test_parallel_crews_structure(self):
-        """Test that parallel crews system has correct structure."""
-        from brand_positioning.core.parallel_crews import (
-            run_parallel_intelligence_sync,
-            run_parallel_analysis_sync
-        )
+    def test_focused_workflow_structure(self):
+        """Test that focused workflow system has correct structure."""
+        from brand_positioning.core.focused_workflow import run_focused_positioning_analysis
         
-        # Test that functions exist and can be imported
-        self.assertTrue(callable(run_parallel_intelligence_sync))
-        self.assertTrue(callable(run_parallel_analysis_sync))
+        # Test that function exists and can be imported
+        self.assertTrue(callable(run_focused_positioning_analysis))
         
-        # Test basic structure - just verify the functions exist
-        # (We don't want to actually run them in functional tests)
+        # Test basic structure - just verify the function exists
+        # (We don't want to actually run it in functional tests)
 
     def test_ui_components_can_be_imported(self):
         """Test that UI components can be imported and initialized."""
         from brand_positioning.ui.app import (
             init_session_state,
-            display_results
+            display_focused_results
         )
         
         # Test function imports
         self.assertTrue(callable(init_session_state))
-        self.assertTrue(callable(display_results))
+        self.assertTrue(callable(display_focused_results))
         
         # Test display with error result
         error_result = {"error": "Test error"}
         # Should not raise exception
         try:
             with patch('streamlit.error'):
-                display_results(error_result)
+                display_focused_results(error_result)
         except Exception as e:
-            self.fail(f"display_results raised an exception: {e}")
+            self.fail(f"display_focused_results raised an exception: {e}")
 
     def test_brand_info_preservation(self):
         """Test that brand information is preserved through processing."""
@@ -185,10 +152,12 @@ class TestCoreFunctionality(unittest.TestCase):
         self.assertIn("product", brand_info)
         self.assertIn("target", brand_info)
         
-        # Test that tasks preserve brand info
-        from brand_positioning.core.tasks import create_positioning_strategy_task
+        # Test that focused tasks preserve brand info
+        from brand_positioning.core.focused_tasks import create_niche_positioning_task
+        from brand_positioning.agents.focused_agents import create_positioning_specialist_agent
         
-        task = create_positioning_strategy_task(brand_info)
+        agent = create_positioning_specialist_agent()
+        task = create_niche_positioning_task(brand_info, agent)
         self.assertIn("PreservationTest", task.description)
         self.assertIn("Data preservation platform", task.description)
         self.assertIn("Data engineers", task.description)
@@ -209,8 +178,8 @@ class TestCoreFunctionality(unittest.TestCase):
         
         # Production should use more API calls than development
         self.assertGreater(prod_calls, dev_calls)
-        self.assertEqual(dev_calls, 5)   # Dev mode limit
-        self.assertEqual(prod_calls, 20)  # Prod mode limit
+        self.assertEqual(dev_calls, 4)   # Dev mode limit
+        self.assertEqual(prod_calls, 6)  # Prod mode limit
 
     def test_error_handling_structure(self):
         """Test that error handling is structured correctly."""

@@ -64,10 +64,10 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(Config.DEV_MODE)
         
         search_config = Config.get_search_config()
-        self.assertEqual(search_config['total_serp_calls'], 5)
-        self.assertEqual(search_config['competitor_searches'], 2)
-        self.assertEqual(search_config['customer_searches'], 2)
-        self.assertEqual(search_config['trend_searches'], 1)
+        self.assertEqual(search_config['total_serp_calls'], 4)
+        self.assertEqual(search_config['gap_research_calls'], 2)
+        self.assertEqual(search_config['opportunity_calls'], 2)
+        self.assertEqual(search_config['results_per_search'], 5)
 
     @patch.dict(os.environ, {'DEV_MODE': 'false'})
     def test_prod_mode_configuration(self):
@@ -78,10 +78,10 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(Config.DEV_MODE)
         
         search_config = Config.get_search_config()
-        self.assertEqual(search_config['total_serp_calls'], 20)
-        self.assertEqual(search_config['competitor_searches'], 6)
-        self.assertEqual(search_config['customer_searches'], 8)
-        self.assertEqual(search_config['trend_searches'], 6)
+        self.assertEqual(search_config['total_serp_calls'], 6)
+        self.assertEqual(search_config['gap_research_calls'], 3)
+        self.assertEqual(search_config['opportunity_calls'], 3)
+        self.assertEqual(search_config['results_per_search'], 8)
 
     @patch.dict(os.environ, {'DEV_MODE': 'true'})
     def test_mode_info_dev(self):
@@ -90,7 +90,7 @@ class TestConfig(unittest.TestCase):
         
         mode_info = Config.get_mode_info()
         self.assertEqual(mode_info['mode'], 'Development')
-        self.assertEqual(mode_info['serp_calls'], 5)
+        self.assertEqual(mode_info['serp_calls'], 4)
 
     @patch.dict(os.environ, {'DEV_MODE': 'false'})
     def test_mode_info_prod(self):
@@ -99,7 +99,7 @@ class TestConfig(unittest.TestCase):
         
         mode_info = Config.get_mode_info()
         self.assertEqual(mode_info['mode'], 'Production')
-        self.assertEqual(mode_info['serp_calls'], 20)
+        self.assertEqual(mode_info['serp_calls'], 6)
 
 
 if __name__ == '__main__':
